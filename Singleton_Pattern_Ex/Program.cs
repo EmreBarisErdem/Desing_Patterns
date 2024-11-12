@@ -1,8 +1,10 @@
 ﻿
 using System;
+using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
-//if your application do not use threads 
+//if your application do NOT use threads 
 public sealed class Singleton
 {
 	private Singleton() { }
@@ -76,48 +78,38 @@ class Program
 
 
 
-//if your application uses threads 
+//if your application USES threads 
 
 
 public sealed class SingletonWithThreads
 {
-	private SingletonWithThreads() { }
+	private SingletonWithThreads() { } // making the default constructor private
+
+
+	private static SingletonWithThreads _instance; //this will hold the instance
+
+
+	private static readonly object _lock = new object(); // We now have a lock object that will be used to synchronize threads. 	// during first access to the Singleton.
+
+
+	public string Value { get; set; } // to be able to test the singleton is working properly
 
 
 
-	private static SingletonWithThreads _instance;
-
-
-
-	private static readonly object _lock = new object();
-	// We now have a lock object that will be used to synchronize threads
-	// during first access to the Singleton.
-
-
-	public string Value { get; set; } // to test the singleton work properly
-
-
-
-	public static SingletonWithThreads GetInstance(string value)
+	public static SingletonWithThreads GetInstance(string value) // this method will create an only one instance of this class.
 	{
-		// This conditional is needed to prevent threads stumbling over the
-		// lock once the instance is ready.
-		if (_instance == null)
+		
+
+		if (_instance == null) // This conditional is needed to prevent threads stumbling over the lock once the instance is ready.
 		{
-			// Now, imagine that the program has just been launched. Since
-			// there's no Singleton instance yet, multiple threads can
-			// simultaneously pass the previous conditional and reach this
-			// point almost at the same time. The first of them will acquire
-			// lock and will proceed further, while the rest will wait here.
+			/// Now, imagine that the program has just been launched. 
+			/// Since there's no Singleton instance yet, multiple threads can simultaneously pass the previous conditional and reach this point almost at the same time. 
+			/// The first of them will acquire lock and will proceed further, while the rest will wait here.
 			lock (_lock)
 			{
-				// The first thread to acquire the lock, reaches this
-				// conditional, goes inside and creates the Singleton
-				// instance. Once it leaves the lock block, a thread that
-				// might have been waiting for the lock release may then
-				// enter this section. But since the Singleton field is
-				// already initialized, the thread won't create a new
-				// object.
+				/// The first thread to acquire the lock, reaches this conditional, goes inside and creates the Singleton instance.
+				/// Once it leaves the lock block, a thread that might have been waiting for the lock release may then enter this section.
+				/// But since the Singleton field is already initialized, the thread won't create a new object.
 				if (_instance == null)
 				{
 					_instance = new SingletonWithThreads();
@@ -129,11 +121,11 @@ public sealed class SingletonWithThreads
 		return _instance;
 	}
 
-	public static void TestSingleton(string value)
+	public static void TestSingleton(string value)  // to test the singleton instance.
 	{
-		SingletonWithThreads singleton = SingletonWithThreads.GetInstance(value);
-		Console.WriteLine(singleton.Value);
-	} // to test the singleton instance is actually one.
+		SingletonWithThreads singletonNesnesi = SingletonWithThreads.GetInstance(value);
+		Console.WriteLine(singletonNesnesi.Value);
+	}
 
 }
 
